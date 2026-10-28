@@ -1,0 +1,136 @@
+import type { DatacenterDeviceReel } from "./datacenterDevicesApi";
+
+const MEDIA_URL = "/datacenter-media";
+
+export const DATACENTER_DEVICES_MOCK: DatacenterDeviceReel[] = [
+  {
+    id: 1,
+    name: "Dell PowerEdge R750",
+    short_description:
+      "Стоечный сервер 2U для виртуализации и высоконагруженных сервисов дата-центра. Два процессора Intel Xeon Scalable, до 32 отсеков NVMe, резервируемые блоки питания и горячая замена дисков.",
+    image_url: `${MEDIA_URL}/server-rack.jpg`,
+    video_url: `${MEDIA_URL}/server-cpu-vertical.webm`,
+    power_consumption_w: 800,
+    heat_dissipation_btu: 2730,
+    likes_count: 3,
+    is_creator: 0,
+    is_liked: 0,
+  },
+  {
+    id: 2,
+    name: "Cisco Catalyst 9300",
+    short_description:
+      "Коммутатор ядра сети дата-центра с поддержкой StackWise-480 и модульным блоком питания. Обеспечивает связность серверных стоек и агрегацию трафика.",
+    image_url: `${MEDIA_URL}/switch.jpg`,
+    video_url: `${MEDIA_URL}/switch-panel-vertical.webm`,
+    power_consumption_w: 350,
+    heat_dissipation_btu: 1194,
+    likes_count: 2,
+    is_creator: 0,
+    is_liked: 0,
+  },
+  {
+    id: 3,
+    name: "NetApp FAS8300",
+    short_description:
+      "Система хранения данных корпоративного класса с гибридными дисковыми полками. Обслуживает файловый и блочный доступ для серверов дата-центра.",
+    image_url: `${MEDIA_URL}/storage.jpg`,
+    video_url: `${MEDIA_URL}/hdd-storage-vertical.webm`,
+    power_consumption_w: 1200,
+    heat_dissipation_btu: 4094,
+    likes_count: 1,
+    is_creator: 0,
+    is_liked: 0,
+  },
+  {
+    id: 4,
+    name: "Dell PowerEdge R710",
+    short_description:
+      "Стоечный сервер 2U с двумя процессорами Intel Xeon 5600 и дисплеем на лицевой панели, который показывает текущее энергопотребление сервера.",
+    image_url: `${MEDIA_URL}/poweredge-r710-front.jpg`,
+    video_url: `${MEDIA_URL}/poweredge-r710-panel-vertical.webm`,
+    power_consumption_w: 350,
+    heat_dissipation_btu: 1194,
+    likes_count: 2,
+    is_creator: 0,
+    is_liked: 0,
+  },
+  {
+    id: 5,
+    name: "Коммутатор доступа Ethernet",
+    short_description:
+      "Коммутатор уровня доступа для подключения серверов стойки медными патч-кордами. Индикаторы портов показывают состояние линков и активность трафика.",
+    image_url: `${MEDIA_URL}/ethernet-switch-cables.jpg`,
+    video_url: `${MEDIA_URL}/switch-ports-cables-vertical.webm`,
+    power_consumption_w: 150,
+    heat_dissipation_btu: 512,
+    likes_count: 1,
+    is_creator: 0,
+    is_liked: 0,
+  },
+  {
+    id: 6,
+    name: "GPU-ускоритель NVIDIA GeForce RTX",
+    short_description:
+      "Графический ускоритель для обучения нейросетей и рендеринга в GPU-узлах дата-центра с активным воздушным охлаждением.",
+    image_url: `${MEDIA_URL}/geforce-rtx-cards.jpg`,
+    video_url: `${MEDIA_URL}/geforce-rtx-card-vertical.webm`,
+    power_consumption_w: 225,
+    heat_dissipation_btu: 768,
+    likes_count: 3,
+    is_creator: 0,
+    is_liked: 0,
+  },
+  {
+    id: 7,
+    name: "Стойка сетевых хранилищ NAS",
+    short_description:
+      "Серверная стойка с сетевыми хранилищами и дисковыми полками для резервного копирования и файлового доступа серверов дата-центра.",
+    image_url: `${MEDIA_URL}/storage-rack-drive-bays.jpg`,
+    video_url: `${MEDIA_URL}/nas-storage-rack-vertical.webm`,
+    power_consumption_w: 1800,
+    heat_dissipation_btu: 6142,
+    likes_count: 1,
+    is_creator: 0,
+    is_liked: 0,
+  },
+  {
+    id: 8,
+    name: "Электрощит распределения и учёта",
+    short_description:
+      "Щит распределения питания машинного зала с модульными автоматическими выключателями и панелью учёта потребляемой электроэнергии.",
+    image_url: `${MEDIA_URL}/distribution-board-breakers.jpg`,
+    video_url: `${MEDIA_URL}/meter-panel-technician-vertical.webm`,
+    power_consumption_w: 50,
+    heat_dissipation_btu: 171,
+    likes_count: 0,
+    is_creator: 0,
+    is_liked: 0,
+  },
+  {
+    id: 9,
+    name: "Шкаф автоматики с панелью оператора",
+    short_description:
+      "Шкаф управления инженерными системами дата-центра с сенсорной панелью оператора, аварийной кнопкой и индикаторными лампами состояния.",
+    image_url: `${MEDIA_URL}/automation-cabinet-touchscreen.jpg`,
+    video_url: `${MEDIA_URL}/control-panel-lamps-vertical.webm`,
+    power_consumption_w: 80,
+    heat_dissipation_btu: 273,
+    likes_count: 2,
+    is_creator: 0,
+    is_liked: 0,
+  },
+  {
+    id: 12,
+    name: "Стоечный блок розеток PDU",
+    short_description:
+      "Блок распределения питания для серверной стойки с измерением тока нагрузки по фазам и удалённым управлением розетками.",
+    image_url: null,
+    video_url: null,
+    power_consumption_w: 20,
+    heat_dissipation_btu: 68,
+    likes_count: 0,
+    is_creator: 0,
+    is_liked: 0,
+  },
+];

@@ -1,0 +1,30 @@
+.datacenter-screen {
+  max-width: 430px;
+  margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.datacenter-screen-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.datacenter-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.datacenter-loader {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+  color: var(--color-primary);
+}
