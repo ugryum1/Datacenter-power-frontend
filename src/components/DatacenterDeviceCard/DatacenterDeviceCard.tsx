@@ -1,6 +1,7 @@
 import "./DatacenterDeviceCard.css";
 import type { FC } from "react";
-import { Card } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
+import { datacenterMediaURL } from "../../api";
 
 const defaultDeviceImage = "/default-device.jpg";
 
@@ -10,6 +11,7 @@ interface Props {
   power_consumption_w: number | null;
   likes_count: number;
   onClick: () => void;
+  onDelete?: () => void;
 }
 
 export const DatacenterDeviceCard: FC<Props> = ({
@@ -18,12 +20,13 @@ export const DatacenterDeviceCard: FC<Props> = ({
   power_consumption_w,
   likes_count,
   onClick,
+  onDelete,
 }) => (
   <Card className="equipment-card" onClick={onClick}>
     <Card.Img
       className="equipment-card__media"
       variant="top"
-      src={image_url || defaultDeviceImage}
+      src={datacenterMediaURL(image_url) || defaultDeviceImage}
       alt={name}
     />
     <Card.Body className="info">
@@ -32,6 +35,14 @@ export const DatacenterDeviceCard: FC<Props> = ({
         <span>❤ {likes_count}</span>
         <span className="power">{power_consumption_w} Вт</span>
       </div>
+      {onDelete && (
+        <Button variant="outline-danger" size="sm" className="equipment-delete" onClick={(event) => {
+          event.stopPropagation();
+          onDelete();
+        }}>
+          Удалить
+        </Button>
+      )}
     </Card.Body>
   </Card>
 );

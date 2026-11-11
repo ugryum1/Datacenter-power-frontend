@@ -1,29 +1,27 @@
 import "./DatacenterDevicesPage.css";
-import { type FC, useEffect, useState } from "react";
-import { Spinner } from "react-bootstrap";
+import { type FC, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { type DatacenterDevice, getDatacenterDevices } from "../../modules/datacenterDevicesApi";
+import {
+  getDatacenterDevices, setPowerW, deleteDatacenterDevice,
+} from "../../slices/datacenterDevicesSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks";
 import { DatacenterTopbar } from "../../components/DatacenterTopbar";
 import { PowerFilter } from "../../components/PowerFilter";
 import { DatacenterDeviceCard } from "../../components/DatacenterDeviceCard";
 import { ROUTES } from "../../Routes";
 
 export const DatacenterDevicesPage: FC = () => {
-  const [powerW, setPowerW] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [devices, setDevices] = useState<DatacenterDevice[]>([]);
+  const { powerW, loading, devices, error } = useAppSelector((state) => state.datacenterDevices);
+  const isAuthenticated = useAppSelector((state) => state.datacenterEngineer.isAuthenticated);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    getDatacenterDevices().then(setDevices);
-  }, []);
+    dispatch(getDatacenterDevices());
+  }, [dispatch, isAuthenticated]);
 
   const handleSearch = () => {
-    setLoading(true);
-    getDatacenterDevices(powerW).then((response) => {
-      setDevices(response);
-      setLoading(false);
-    });
+    dispatch(getDatacenterDevices());
   };
 
   const handleCardClick = (id: number) => {
@@ -35,16 +33,11 @@ export const DatacenterDevicesPage: FC = () => {
       <DatacenterTopbar title="Плитка оборудования" />
       <PowerFilter
         powerW={powerW}
-        setPowerW={setPowerW}
+        setPowerW={(value) => dispatch(setPowerW(value))}
         loading={loading}
         onSubmit={handleSearch}
       />
-      {loading && (
-        <div className="datacenter-loader">
-          <Spinner animation="border" />
-        </div>
-      )}
-      {!loading &&
+      {!loading && !error &&
         (!devices.length ? (
           <p className="datacenter-empty">Оборудование не найдено</p>
         ) : (
@@ -53,6 +46,9 @@ export const DatacenterDevicesPage: FC = () => {
               <DatacenterDeviceCard
                 key={device.id}
                 onClick={() => handleCardClick(device.id)}
+                onDelete={isAuthenticated && device.is_creator === 1
+                  ? () => dispatch(deleteDatacenterDevice(device.id))
+                  : undefined}
                 {...device}
               />
             ))}

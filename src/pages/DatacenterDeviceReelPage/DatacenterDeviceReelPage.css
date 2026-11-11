@@ -64,6 +64,15 @@
   color: var(--color-like);
 }
 
+.reel-action--like:disabled {
+  opacity: 1;
+}
+
+.reel-action--like.is-liked .reel-action__circle {
+  background: rgba(255, 77, 87, 0.3);
+  border-color: var(--color-like);
+}
+
 .reel-action--next .reel-action__circle {
   border: 1.5px solid rgba(255, 255, 255, 0.85);
   background: rgba(13, 20, 36, 0.55);

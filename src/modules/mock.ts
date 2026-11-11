@@ -1,6 +1,6 @@
 import type { DatacenterDeviceReel } from "./datacenterDevicesApi";
 
-const MEDIA_URL = "/datacenter-media";
+const MEDIA_URL = "/mock-datacenter-media";
 
 export const DATACENTER_DEVICES_MOCK: DatacenterDeviceReel[] = [
   {

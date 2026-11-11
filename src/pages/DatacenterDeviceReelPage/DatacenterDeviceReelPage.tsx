@@ -1,11 +1,10 @@
 import "./DatacenterDeviceReelPage.css";
 import { type FC, useEffect, useState } from "react";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import {
-  type DatacenterDeviceReel,
-  getDatacenterDeviceReel,
-} from "../../modules/datacenterDevicesApi";
+import { getDatacenterDeviceReel, likeDatacenterDevice } from "../../slices/datacenterDevicesSlice";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { datacenterMediaURL } from "../../api";
 import { DatacenterTopbar } from "../../components/DatacenterTopbar";
 import { ROUTES } from "../../Routes";
 
@@ -13,8 +12,9 @@ const defaultDeviceImage = "/default-device.jpg";
 const defaultDeviceVideo = "/default-device.webm";
 
 export const DatacenterDeviceReelPage: FC = () => {
-  const [device, setDevice] = useState<DatacenterDeviceReel>();
-  const [loading, setLoading] = useState(true);
+  const { reel: device, loading, error } = useAppSelector((state) => state.datacenterDevices);
+  const isAuthenticated = useAppSelector((state) => state.datacenterEngineer.isAuthenticated);
+  const dispatch = useAppDispatch();
   const [aboutOpen, setAboutOpen] = useState(false);
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -22,15 +22,11 @@ export const DatacenterDeviceReelPage: FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getDatacenterDeviceReel(id, next).then((response) => {
-      setDevice(response);
-      setLoading(false);
-    });
-  }, [id, next]);
+    dispatch(getDatacenterDeviceReel({ id, next }));
+  }, [dispatch, id, next, isAuthenticated]);
 
   const handleNext = () => {
     if (device) {
-      setLoading(true);
       setAboutOpen(false);
       navigate(`${ROUTES.DATACENTER_DEVICE_REEL}/${device.id}?next=true`);
     }
@@ -39,17 +35,12 @@ export const DatacenterDeviceReelPage: FC = () => {
   return (
     <>
       <DatacenterTopbar title="Лента оборудования" />
-      {loading && (
-        <div className="datacenter-loader">
-          <Spinner animation="border" />
-        </div>
-      )}
-      {!loading && !device && <p className="datacenter-empty">Устройство не найдено</p>}
+      {!loading && !device && !error && <p className="datacenter-empty">Устройство не найдено</p>}
       {!loading && device && (
         <div className="reel-stage">
           <video
             key={device.id}
-            src={device.video_url || defaultDeviceVideo}
+            src={datacenterMediaURL(device.video_url) || defaultDeviceVideo}
             poster={defaultDeviceImage}
             autoPlay
             loop
@@ -58,12 +49,20 @@ export const DatacenterDeviceReelPage: FC = () => {
           />
 
           <aside className="reel-side">
-            <div className="reel-action reel-action--like">
+            <Button
+              className={`reel-action reel-action--like ${device.is_liked ? "is-liked" : ""}`}
+              variant="link"
+              disabled={!isAuthenticated}
+              aria-label={device.is_liked ? "Убрать лайк" : "Поставить лайк"}
+              onClick={() => dispatch(likeDatacenterDevice({
+                id: device.id, like: device.is_liked ? 0 : 1,
+              }))}
+            >
               <span className="reel-action__circle">
                 <span className="heart">❤</span>
               </span>
               <span className="reel-action__label">{device.likes_count}</span>
-            </div>
+            </Button>
 
             <div className="reel-specs">
               <div className="reel-spec">

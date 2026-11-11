@@ -42,3 +42,9 @@
   color: var(--color-accent);
   font-weight: 600;
 }
+
+.equipment-delete {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: var(--radius-control);
+}
