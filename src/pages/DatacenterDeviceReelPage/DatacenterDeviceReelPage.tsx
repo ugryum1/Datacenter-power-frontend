@@ -35,7 +35,7 @@ export const DatacenterDeviceReelPage: FC = () => {
   return (
     <>
       <DatacenterTopbar title="Лента оборудования" />
-      {!loading && !device && !error && <p className="datacenter-empty">Устройство не найдено</p>}
+      {!loading && !device && !error && <p className="datacenter-empty">Оборудование не найдено</p>}
       {!loading && device && (
         <div className="reel-stage">
           <video

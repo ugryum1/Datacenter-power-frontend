@@ -79,7 +79,7 @@ export const getDatacenterDeviceReel = datacenterThunk(
           ];
         }
       }
-      return rejectWithValue("Не удалось загрузить устройство");
+      return rejectWithValue("Не удалось загрузить оборудование");
     }
   },
 );
@@ -99,29 +99,29 @@ export const getDatacenterDeviceDraft = datacenterThunk(
   },
 );
 
+export const createDatacenterDeviceDraft = datacenterThunk(
+  "datacenterDevices/createDatacenterDeviceDraft",
+  async (media: { name: string; image: File; video: File }, { getState, rejectWithValue }) => {
+    try {
+      const response = await datacenterPowerApi.datacenterDevices.datacenterDevicesCreate(media, {
+        headers: datacenterEngineerAuthorization(getState().datacenterEngineer.isAuthenticated),
+      });
+      return response.data as DatacenterDevice;
+    } catch {
+      return rejectWithValue("Не удалось создать черновик оборудования");
+    }
+  },
+);
+
 export const publishDatacenterDevice = datacenterThunk(
   "datacenterDevices/publishDatacenterDevice",
-  async (data: {
-    fields: DsDatacenterDevicePublishRequest;
-    image: File | null;
-    video: File | null;
-  }, { getState, dispatch, rejectWithValue }) => {
-    const state = getState();
-    const params = {
-      headers: datacenterEngineerAuthorization(state.datacenterEngineer.isAuthenticated),
-    };
+  async ({ id, fields }: { id: number; fields: DsDatacenterDevicePublishRequest },
+    { getState, rejectWithValue }) => {
     try {
-      let draft = state.datacenterDevices.draft;
-      if (!draft) {
-        if (!data.image || !data.video) return rejectWithValue("Выберите фото и видео оборудования");
-        const response = await datacenterPowerApi.datacenterDevices.datacenterDevicesCreate({
-          name: data.fields.name, image: data.image, video: data.video,
-        }, params);
-        draft = response.data as DatacenterDevice;
-        dispatch(setDatacenterDeviceDraft(draft));
-      }
       const response = await datacenterPowerApi.datacenterDevices.datacenterPublishUpdate(
-        draft.id, data.fields, params,
+        id, fields, {
+          headers: datacenterEngineerAuthorization(getState().datacenterEngineer.isAuthenticated),
+        },
       );
       return response.data as DatacenterDevice;
     } catch {
@@ -167,9 +167,6 @@ const datacenterDevicesSlice = createSlice({
     setPowerW(state, action: PayloadAction<number>) {
       state.powerW = action.payload;
     },
-    setDatacenterDeviceDraft(state, action: PayloadAction<DatacenterDevice>) {
-      state.draft = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -192,6 +189,9 @@ const datacenterDevicesSlice = createSlice({
       .addCase(getDatacenterDeviceDraft.fulfilled, (state, action) => {
         state.draft = action.payload;
       })
+      .addCase(createDatacenterDeviceDraft.fulfilled, (state, action) => {
+        state.draft = action.payload;
+      })
       .addCase(publishDatacenterDevice.fulfilled, (state) => {
         state.draft = null;
       })
@@ -206,7 +206,7 @@ const datacenterDevicesSlice = createSlice({
       });
     for (const thunk of [
       getDatacenterDevices, getDatacenterDeviceReel, getDatacenterDeviceDraft,
-      publishDatacenterDevice, deleteDatacenterDevice, likeDatacenterDevice,
+      createDatacenterDeviceDraft, publishDatacenterDevice, deleteDatacenterDevice, likeDatacenterDevice,
     ]) {
       builder
         .addMatcher(thunk.pending.match, (state) => {
@@ -224,5 +224,5 @@ const datacenterDevicesSlice = createSlice({
   },
 });
 
-export const { setPowerW, setDatacenterDeviceDraft } = datacenterDevicesSlice.actions;
+export const { setPowerW } = datacenterDevicesSlice.actions;
 export default datacenterDevicesSlice.reducer;

@@ -3,8 +3,18 @@ import { Button, Form } from "react-bootstrap";
 import { Navigate, useNavigate } from "react-router-dom";
 import { DatacenterTopbar } from "../../components/DatacenterTopbar";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import { getDatacenterDeviceDraft, publishDatacenterDevice } from "../../slices/datacenterDevicesSlice";
+import { datacenterMediaURL } from "../../api";
+import { createDatacenterDeviceDraft, getDatacenterDeviceDraft, publishDatacenterDevice } from "../../slices/datacenterDevicesSlice";
 import { ROUTES } from "../../Routes";
+
+function useSelectedMedia() {
+  const [media, setMedia] = useState<{ file: File; url: string } | null>(null);
+  useEffect(() => () => {
+    if (media) URL.revokeObjectURL(media.url);
+  }, [media]);
+  const select = (file?: File) => setMedia(file ? { file, url: URL.createObjectURL(file) } : null);
+  return { media, select };
+}
 
 export const DatacenterDeviceDraftPage = () => {
   const isAuthenticated = useAppSelector((state) => state.datacenterEngineer.isAuthenticated);
@@ -15,22 +25,32 @@ export const DatacenterDeviceDraftPage = () => {
   const [description, setDescription] = useState<string | null>(null);
   const [powerW, setPowerW] = useState<string | null>(null);
   const [heatBTU, setHeatBTU] = useState<string | null>(null);
-  const [image, setImage] = useState<File | null>(null);
-  const [video, setVideo] = useState<File | null>(null);
+  const image = useSelectedMedia();
+  const video = useSelectedMedia();
 
   useEffect(() => {
     if (isAuthenticated) dispatch(getDatacenterDeviceDraft());
   }, [dispatch, isAuthenticated]);
 
+  const imageURL = draft ? datacenterMediaURL(draft.image_url) : image.media?.url;
+  const videoURL = draft ? datacenterMediaURL(draft.video_url) : video.media?.url;
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!draft) {
+      if (name && image.media && video.media) {
+        await dispatch(createDatacenterDeviceDraft({ name, image: image.media.file, video: video.media.file }));
+      }
+      return;
+    }
     const result = await dispatch(publishDatacenterDevice({
+      id: draft.id,
       fields: {
-        name: name ?? draft?.name ?? "",
-        short_description: description ?? draft?.short_description ?? "",
-        power_consumption_w: Number(powerW ?? draft?.power_consumption_w), heat_dissipation_btu: Number(heatBTU ?? draft?.heat_dissipation_btu),
+        name: draft.name,
+        short_description: description ?? draft.short_description ?? "",
+        power_consumption_w: Number(powerW ?? draft.power_consumption_w),
+        heat_dissipation_btu: Number(heatBTU ?? draft.heat_dissipation_btu),
       },
-      image, video,
     }));
     if (publishDatacenterDevice.fulfilled.match(result)) {
       navigate(`${ROUTES.DATACENTER_DEVICE_REEL}/${result.payload.id}`);
@@ -45,39 +65,48 @@ export const DatacenterDeviceDraftPage = () => {
       <Form className="datacenter-form" onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="datacenter-device-name">
           <Form.Label>Название</Form.Label>
-          <Form.Control required value={name ?? draft?.name ?? ""} onChange={(event) => setName(event.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="datacenter-device-description">
-          <Form.Label>Описание</Form.Label>
-          <Form.Control as="textarea" rows={3} required value={description ?? draft?.short_description ?? ""}
-            onChange={(event) => setDescription(event.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="datacenter-device-power">
-          <Form.Label>Потребляемая мощность, Вт</Form.Label>
-          <Form.Control type="number" required value={powerW ?? draft?.power_consumption_w ?? ""}
-            onChange={(event) => setPowerW(event.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="datacenter-device-heat">
-          <Form.Label>Тепловыделение, БТЕ/ч</Form.Label>
-          <Form.Control type="number" required value={heatBTU ?? draft?.heat_dissipation_btu ?? ""}
-            onChange={(event) => setHeatBTU(event.target.value)} />
+          <Form.Control required readOnly={!!draft} value={draft?.name ?? name ?? ""} onChange={(event) => setName(event.target.value)} />
         </Form.Group>
         {!draft && (
           <>
             <Form.Group className="mb-3" controlId="datacenter-device-image">
               <Form.Label>Фото оборудования</Form.Label>
               <Form.Control type="file" accept="image/jpeg,image/png,image/webp" required
-                onChange={(event) => setImage((event.target as HTMLInputElement).files?.[0] ?? null)} />
+                onChange={(event) => image.select((event.target as HTMLInputElement).files?.[0])} />
             </Form.Group>
             <Form.Group className="mb-4" controlId="datacenter-device-video">
               <Form.Label>Видео оборудования</Form.Label>
               <Form.Control type="file" accept="video/webm,video/mp4" required
-                onChange={(event) => setVideo((event.target as HTMLInputElement).files?.[0] ?? null)} />
+                onChange={(event) => video.select((event.target as HTMLInputElement).files?.[0])} />
             </Form.Group>
           </>
         )}
-        {draft && <p>Фото и видео черновика уже загружены.</p>}
-        <Button type="submit">Опубликовать</Button>
+        {(imageURL || videoURL) && (
+          <div className="datacenter-media-preview">
+            {imageURL && <img src={imageURL} alt="Фото оборудования" />}
+            {videoURL && <video src={videoURL} controls playsInline preload="auto" aria-label="Видео оборудования" />}
+          </div>
+        )}
+        {draft && (
+          <>
+            <Form.Group className="mb-3" controlId="datacenter-device-description">
+              <Form.Label>Описание</Form.Label>
+              <Form.Control as="textarea" rows={3} required value={description ?? draft?.short_description ?? ""}
+                onChange={(event) => setDescription(event.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="datacenter-device-power">
+              <Form.Label>Потребляемая мощность, Вт</Form.Label>
+              <Form.Control type="number" required value={powerW ?? draft?.power_consumption_w ?? ""}
+                onChange={(event) => setPowerW(event.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="datacenter-device-heat">
+              <Form.Label>Тепловыделение, БТЕ/ч</Form.Label>
+              <Form.Control type="number" required value={heatBTU ?? draft?.heat_dissipation_btu ?? ""}
+                onChange={(event) => setHeatBTU(event.target.value)} />
+            </Form.Group>
+          </>
+        )}
+        <Button type="submit">{draft ? "Опубликовать" : "Далее"}</Button>
       </Form>
     </>
   );
