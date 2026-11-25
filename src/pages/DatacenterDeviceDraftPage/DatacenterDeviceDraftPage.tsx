@@ -1,3 +1,4 @@
+import "./DatacenterDeviceDraftPage.css";
 import { useEffect, useState, type FormEvent } from "react";
 import { Button, Form } from "react-bootstrap";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -62,24 +63,24 @@ export const DatacenterDeviceDraftPage = () => {
   return (
     <>
       <DatacenterTopbar title="Добавление оборудования" />
-      <Form className="datacenter-form" onSubmit={handleSubmit}>
+      <Form className="datacenter-form datacenter-draft-form" onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="datacenter-device-name">
           <Form.Label>Название</Form.Label>
           <Form.Control required readOnly={!!draft} value={draft?.name ?? name ?? ""} onChange={(event) => setName(event.target.value)} />
         </Form.Group>
         {!draft && (
-          <>
+          <div className="datacenter-draft-fields">
             <Form.Group className="mb-3" controlId="datacenter-device-image">
               <Form.Label>Фото оборудования</Form.Label>
               <Form.Control type="file" accept="image/jpeg,image/png,image/webp" required
                 onChange={(event) => image.select((event.target as HTMLInputElement).files?.[0])} />
             </Form.Group>
-            <Form.Group className="mb-4" controlId="datacenter-device-video">
+            <Form.Group className="mb-3" controlId="datacenter-device-video">
               <Form.Label>Видео оборудования</Form.Label>
               <Form.Control type="file" accept="video/webm,video/mp4" required
                 onChange={(event) => video.select((event.target as HTMLInputElement).files?.[0])} />
             </Form.Group>
-          </>
+          </div>
         )}
         {(imageURL || videoURL) && (
           <div className="datacenter-media-preview">
@@ -94,16 +95,18 @@ export const DatacenterDeviceDraftPage = () => {
               <Form.Control as="textarea" rows={3} required value={description ?? draft?.short_description ?? ""}
                 onChange={(event) => setDescription(event.target.value)} />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="datacenter-device-power">
-              <Form.Label>Потребляемая мощность, Вт</Form.Label>
-              <Form.Control type="number" required value={powerW ?? draft?.power_consumption_w ?? ""}
-                onChange={(event) => setPowerW(event.target.value)} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="datacenter-device-heat">
-              <Form.Label>Тепловыделение, БТЕ/ч</Form.Label>
-              <Form.Control type="number" required value={heatBTU ?? draft?.heat_dissipation_btu ?? ""}
-                onChange={(event) => setHeatBTU(event.target.value)} />
-            </Form.Group>
+            <div className="datacenter-draft-fields">
+              <Form.Group className="mb-3" controlId="datacenter-device-power">
+                <Form.Label>Потребляемая мощность, Вт</Form.Label>
+                <Form.Control type="number" required value={powerW ?? draft?.power_consumption_w ?? ""}
+                  onChange={(event) => setPowerW(event.target.value)} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="datacenter-device-heat">
+                <Form.Label>Тепловыделение, БТЕ/ч</Form.Label>
+                <Form.Control type="number" required value={heatBTU ?? draft?.heat_dissipation_btu ?? ""}
+                  onChange={(event) => setHeatBTU(event.target.value)} />
+              </Form.Group>
+            </div>
           </>
         )}
         <Button type="submit">{draft ? "Опубликовать" : "Далее"}</Button>

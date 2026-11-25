@@ -167,3 +167,30 @@
 .reel-about__toggle:hover {
   color: var(--color-accent);
 }
+
+@media (min-width: 600px) {
+  .reel-stage {
+    width: 100%;
+    max-width: 540px;
+    align-self: center;
+  }
+
+  .reel-stage video {
+    object-fit: contain;
+  }
+}
+
+@media (max-height: 600px) {
+  .reel-side {
+    gap: 8px;
+  }
+
+  .reel-action__circle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .reel-specs {
+    gap: 4px;
+  }
+}

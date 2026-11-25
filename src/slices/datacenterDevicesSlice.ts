@@ -3,7 +3,7 @@ import axios from "axios";
 import { datacenterPowerApi, datacenterEngineerAuthorization } from "../api/index.ts";
 import type { DsDatacenterDevicePublishRequest } from "../api/DatacenterPowerApi.ts";
 import type { DatacenterDevice, DatacenterDeviceReel } from "../modules/datacenterDevicesApi.ts";
-import { DATACENTER_DEVICES_MOCK } from "../modules/mock.ts";
+import { DATACENTER_DEVICES_MOCK, datacenterMockOnly } from "../modules/mock.ts";
 import type { RootState } from "../store.ts";
 import { signInDatacenterEngineer, signOutDatacenterEngineer } from "./datacenterEngineerSlice.ts";
 
@@ -39,20 +39,22 @@ export const getDatacenterDevices = datacenterThunk(
   async (_: void, { getState, rejectWithValue }) => {
     const { datacenterDevices, datacenterEngineer } = getState();
     const powerW = datacenterDevices.powerW;
-    try {
-      const response = await datacenterPowerApi.datacenterDevices.datacenterDevicesList(
-        { power: powerW },
-        { headers: datacenterEngineerAuthorization(datacenterEngineer.isAuthenticated) },
-      );
-      return response.data as DatacenterDevice[];
-    } catch (error) {
-      if (canUseDatacenterMock(error, datacenterEngineer.isAuthenticated)) {
-        return DATACENTER_DEVICES_MOCK.filter(
-          (device) => (device.power_consumption_w ?? 0) >= powerW,
+    if (!datacenterMockOnly) {
+      try {
+        const response = await datacenterPowerApi.datacenterDevices.datacenterDevicesList(
+          { power: powerW },
+          { headers: datacenterEngineerAuthorization(datacenterEngineer.isAuthenticated) },
         );
+        return response.data as DatacenterDevice[];
+      } catch (error) {
+        if (!canUseDatacenterMock(error, datacenterEngineer.isAuthenticated)) {
+          return rejectWithValue("Не удалось загрузить оборудование");
+        }
       }
-      return rejectWithValue("Не удалось загрузить оборудование");
     }
+    return DATACENTER_DEVICES_MOCK.filter(
+      (device) => (device.power_consumption_w ?? 0) >= powerW,
+    );
   },
 );
 
@@ -60,27 +62,28 @@ export const getDatacenterDeviceReel = datacenterThunk(
   "datacenterDevices/getDatacenterDeviceReel",
   async ({ id, next = false }: { id?: string; next?: boolean }, { getState, rejectWithValue }) => {
     const { isAuthenticated } = getState().datacenterEngineer;
-    const params = { headers: datacenterEngineerAuthorization(isAuthenticated) };
-    try {
-      const response = id
-        ? await datacenterPowerApi.datacenterDevices.datacenterReelDetail(
-          Number(id), { next: String(next) }, params,
-        )
-        : await datacenterPowerApi.datacenterDevices.datacenterReelList(params);
-      return response.data as DatacenterDeviceReel;
-    } catch (error) {
-      if (canUseDatacenterMock(error, isAuthenticated)) {
-        const index = id
-          ? DATACENTER_DEVICES_MOCK.findIndex((device) => String(device.id) === id)
-          : 0;
-        if (index >= 0) {
-          return DATACENTER_DEVICES_MOCK[
-            next ? (index + 1) % DATACENTER_DEVICES_MOCK.length : index
-          ];
+    if (!datacenterMockOnly) {
+      const params = { headers: datacenterEngineerAuthorization(isAuthenticated) };
+      try {
+        const response = id
+          ? await datacenterPowerApi.datacenterDevices.datacenterReelDetail(
+            Number(id), { next: String(next) }, params,
+          )
+          : await datacenterPowerApi.datacenterDevices.datacenterReelList(params);
+        return response.data as DatacenterDeviceReel;
+      } catch (error) {
+        if (!canUseDatacenterMock(error, isAuthenticated)) {
+          return rejectWithValue("Не удалось загрузить оборудование");
         }
       }
+    }
+    const index = id
+      ? DATACENTER_DEVICES_MOCK.findIndex((device) => String(device.id) === id)
+      : 0;
+    if (index < 0) {
       return rejectWithValue("Не удалось загрузить оборудование");
     }
+    return DATACENTER_DEVICES_MOCK[next ? (index + 1) % DATACENTER_DEVICES_MOCK.length : index];
   },
 );
 

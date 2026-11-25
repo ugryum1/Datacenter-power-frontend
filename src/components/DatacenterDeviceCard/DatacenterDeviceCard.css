@@ -19,6 +19,18 @@
   object-fit: cover;
 }
 
+@media (min-width: 600px) {
+  .equipment-card__media {
+    height: 150px;
+  }
+}
+
+@media (min-width: 992px) {
+  .equipment-card__media {
+    height: 170px;
+  }
+}
+
 .equipment-card .info {
   padding: 10px;
 }

@@ -8,8 +8,8 @@ import { datacenterMediaURL } from "../../api";
 import { DatacenterTopbar } from "../../components/DatacenterTopbar";
 import { ROUTES } from "../../Routes";
 
-const defaultDeviceImage = "/default-device.jpg";
-const defaultDeviceVideo = "/default-device.webm";
+const defaultDeviceImage = `${import.meta.env.BASE_URL}default-device.jpg`;
+const defaultDeviceVideo = `${import.meta.env.BASE_URL}default-device.webm`;
 
 export const DatacenterDeviceReelPage: FC = () => {
   const { reel: device, loading, error } = useAppSelector((state) => state.datacenterDevices);

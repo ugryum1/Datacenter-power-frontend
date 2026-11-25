@@ -1,6 +1,8 @@
 import type { DatacenterDeviceReel } from "./datacenterDevicesApi";
 
-const MEDIA_URL = "/mock-datacenter-media";
+const MEDIA_URL = `${import.meta.env.BASE_URL}mock-datacenter-media`;
+
+export const datacenterMockOnly = import.meta.env.MODE === "pages";
 
 export const DATACENTER_DEVICES_MOCK: DatacenterDeviceReel[] = [
   {

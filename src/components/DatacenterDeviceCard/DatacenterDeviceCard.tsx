@@ -3,7 +3,7 @@ import type { FC } from "react";
 import { Button, Card } from "react-bootstrap";
 import { datacenterMediaURL } from "../../api";
 
-const defaultDeviceImage = "/default-device.jpg";
+const defaultDeviceImage = `${import.meta.env.BASE_URL}default-device.jpg`;
 
 interface Props {
   name: string;

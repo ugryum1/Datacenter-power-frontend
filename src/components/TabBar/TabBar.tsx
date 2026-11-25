@@ -6,6 +6,7 @@ import { ROUTES, ROUTE_LABELS } from "../../Routes";
 import axios from "axios";
 import { DATACENTER_TOKEN_KEY, datacenterEngineerAuthorization } from "../../api";
 import { useAppDispatch, useAppSelector } from "../../hooks";
+import { datacenterMockOnly } from "../../modules/mock";
 import {
   failDatacenterEngineerRequest, signOutDatacenterEngineer, startDatacenterEngineerRequest,
 } from "../../slices/datacenterEngineerSlice";
@@ -52,7 +53,7 @@ export const TabBar: FC = () => {
         <span className="icon">▦</span>
         {ROUTE_LABELS.DATACENTER_DEVICES}
       </Nav.Link>
-      <Nav.Link disabled={loading}
+      <Nav.Link disabled={loading || datacenterMockOnly}
         active={location.pathname === ROUTES.DATACENTER_ENGINEER_SIGN_IN}
         onClick={() => engineer.isAuthenticated
           ? handleSignOut()
